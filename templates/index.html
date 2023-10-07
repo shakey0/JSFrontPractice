@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop up box</title>
+    <style type="text/css">
+        *, *::after, *::before {
+            box-sizing: border-box;
+        }
+
+        .amend-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: 200ms ease-in-out;
+            border: 1px solid black;
+            border-radius: 10px;
+            z-index: 10;
+            background-color: white;
+            width: 500px;
+            max-width: 80%;
+        }
+
+        .amend-box.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .amend-box-header {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid black;
+        }
+
+        .amend-box-header p {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .amend-box-header .close-button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            background: none;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .amend-box-body {
+            padding: 10px 15px;
+        }
+
+        #overlay {
+            position: fixed;
+            opacity: 0;
+            transition: 200ms ease-in-out;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, .5);
+            pointer-events: none;
+        }
+
+        #overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Hello World!</h1>
+    {% for item in test_items %}
+        <h3>This person's name is: {{item.name}}</h3>
+        <p>This person's favourite subjects are: {{item.tags}}</p>
+        {% if item.is_it == True %}
+            <button data-amend-box-target="#amend-box-{{item.name}}">Amend favourites</button>
+            <div class="amend-box" id="amend-box-{{item.name}}">
+                <div class="amend-box-header">
+                    <p>Change favourite tags</p>
+                    <button data-close-button class="close-button">&times;</button>
+                </div>
+                <div class="amend-box-body">
+                    {% for tag in item.tags %}
+                        <p>{{tag}}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    <div id="overlay"></div>
+    <script>
+        
+        const openBoxButtons = document.querySelectorAll('[data-amend-box-target]')
+        const closeBoxButtons = document.querySelectorAll('[data-close-button]')
+        const overlay = document.getElementById('overlay')
+
+        openBoxButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const box = document.querySelector(button.dataset.amendBoxTarget)
+                openBox(box)
+            })
+        })
+
+        overlay.addEventListener('click', () => {
+            const boxes = document.querySelectorAll('.amend-box.active')
+            boxes.forEach(box => {
+                closeBox(box)
+            })
+        })
+
+        closeBoxButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const box = button.closest('.amend-box')
+                closeBox(box)
+            })
+        })
+        
+        function openBox(box) {
+            if (box == null) return
+            box.classList.add('active')
+            overlay.classList.add('active')
+        }
+
+        function closeBox(box) {
+            if (box == null) return
+            box.classList.remove('active')
+            overlay.classList.remove('active')
+        }
+
+    </script>
+</body>
+</html>
